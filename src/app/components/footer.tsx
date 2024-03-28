@@ -18,28 +18,30 @@ export const Footer = () => {
       padding={tokens.space.medium}
     >
       <Card>
-        <Flex direction="row" alignItems="flex-start">
+        <Flex
+          direction="row"
+          alignItems="center"
+          justifyContent="flex-end"
+          alignContent="flex-end"
+        >
           <Flex
             direction="column"
-            alignItems="flex-start"
+            alignItems="center"
+            justifyContent="flex-end"
+            alignContent="flex-end"
             gap={tokens.space.xs}
           >
-            <Heading level={6}>
-              golf.jpc.io is free to use, powered by your donations.
-            </Heading>
-            <Text as="span"></Text>
-            <Flex direction="row" alignItems="flex-start" gap={tokens.space.xs}>
-              <Button
-                as="a"
-                href="bitcoin:bc1q5k3w6cn9sd263hyv8eamvwrnzm0l6slcn49xd0?label=golf.jpc.io&message=Hosting%20Costs"
-              >
-                <Image alt="bitcoin" src="/bitcoin.png" /> &nbsp; Bitcoin
-              </Button>
-              <Button
-                as="a"
-                href="https://www.paypal.com/donate/?hosted_button_id=3T9XCAW5J5FSL"
-              >
-                <Image alt="paypal" src="/paypal.png" /> &nbsp; Paypal
+            <Flex
+              as="span"
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-end"
+              alignContent="flex-end"
+              gap={tokens.space.xs}
+            >
+              <Text as="span">golf.jpc.io is open source.</Text>
+              <Button as="a" href="https://github.com/johnpc/jpc-golf-gen2">
+                <Image alt="github" src="/github.png" />
               </Button>
             </Flex>
           </Flex>
