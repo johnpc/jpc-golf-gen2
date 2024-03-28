@@ -13,15 +13,6 @@ const client = generateClient<Schema>({
 });
 
 const seedPlayers = async () => {
-  // First remove whatever existing players
-  const players = await client.models.Player.list({
-    limit: 10000,
-  });
-  const deletePlayerPromises = players.data.map((player) =>
-    client.models.Player.delete({ id: player.id }),
-  );
-  await Promise.all(deletePlayerPromises);
-
   const playerNames = [
     "Emily",
     "Yeon",
@@ -53,15 +44,6 @@ const setupMatches = async (
   numWeeks: number,
   firstMatchDate: Date,
 ) => {
-  // First remove whatever existing matches
-  const matches = await client.models.Match.list({
-    limit: 10000,
-  });
-  const deleteMatchPromises = matches.data.map((match) =>
-    client.models.Match.delete({ id: match.id }),
-  );
-  await Promise.all(deleteMatchPromises);
-
   // Then create new ones
   const allPromises = Array.from(Array(numWeeks)).map(async (_, weekNumber) => {
     const matchDate = firstMatchDate.getTime() + MS_PER_WEEK * weekNumber;
@@ -101,8 +83,43 @@ const setupMatches = async (
   await Promise.all(allPromises);
 };
 
+const cleanUp = async () => {
+  const matches = await client.models.Match.list({
+    limit: 10000,
+  });
+  const deleteMatchPromises = matches.data.map((match) =>
+    client.models.Match.delete({ id: match.id }),
+  );
+  await Promise.all(deleteMatchPromises);
+
+  const players = await client.models.Player.list({
+    limit: 10000,
+  });
+  const deletePlayerPromises = players.data.map((player) =>
+    client.models.Player.delete({ id: player.id }),
+  );
+  await Promise.all(deletePlayerPromises);
+
+  const scores = await client.models.Score.list({
+    limit: 10000,
+  });
+  const deleteScorePromises = scores.data.map((score) =>
+    client.models.Score.delete({ id: score.id }),
+  );
+  await Promise.all(deleteScorePromises);
+
+  // const playerMatches = await client.models.PlayerMatch.list({
+  //   limit: 10000,
+  // });
+  // const deletePlayerMatchesPromises = playerMatches.data.map((playerMatch) =>
+  //   client.models.PlayerMatch.delete({id: playerMatch.})
+  // );
+  // await Promise.all(deletePlayerMatchesPromises);
+};
+
 const main = async () => {
+  await cleanUp();
   const playerEntities = await seedPlayers();
-  await setupMatches(playerEntities, 2, new Date());
+  await setupMatches(playerEntities, 4, new Date());
 };
 main();
