@@ -2,14 +2,16 @@ import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { Schema } from "../amplify/data/resource";
 import config from "../amplifyconfiguration.json";
-import { PlayerEntity, createPlayer } from "@/app/data/entities";
-
+import { PlayerEntity, hydratePlayer } from "@/app/data/entities";
+import dotenv from "dotenv";
+dotenv.config();
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const MS_PER_WEEK = MS_PER_DAY * 7;
 
 Amplify.configure(config);
 const client = generateClient<Schema>({
-  authMode: "iam",
+  authMode: "lambda",
+  authToken: process.env.ADMIN_API_KEY!,
 });
 
 const seedPlayers = async () => {
@@ -24,15 +26,20 @@ const seedPlayers = async () => {
     "Kody",
   ];
 
-  return await Promise.all(
+  const playerModels = await Promise.all(
     playerNames.map(
       async (playerName) =>
-        await createPlayer({
+        await client.models.Player.create({
           name: playerName,
           email: `${playerName}@gmail.com`,
         }),
     ),
   );
+
+  const playerEntityPromises = playerModels.map(
+    async (playerModel) => await hydratePlayer(playerModel.data.id),
+  );
+  return await Promise.all(playerEntityPromises);
 };
 
 const getRandomPlayer = (players: PlayerEntity[]): PlayerEntity => {

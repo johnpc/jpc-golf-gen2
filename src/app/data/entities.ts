@@ -94,8 +94,6 @@ export const createPlayer = async (playerProps: {
   email: string;
 }) => {
   const createdPlayer = await client.models.Player.create(playerProps);
-  const cacheInstance = await CacheSingleton.getInstance();
-  await cacheInstance.initialize();
   return await hydratePlayer(createdPlayer.data.id);
 };
 
