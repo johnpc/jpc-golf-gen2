@@ -34,6 +34,7 @@ export const ReportScore = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerEntity>();
   const [selectedMatch, setSelectedMatch] = useState<MatchEntity>();
   const [score, setScore] = useState<number>();
+  const hasScore = !!score || score === 0;
 
   const setup = async () => {
     const p = await listPlayers();
@@ -70,7 +71,7 @@ export const ReportScore = () => {
     setError(false);
     setIsLoading(true);
 
-    if (!score || !selectedMatch || !selectedPlayer) {
+    if (!hasScore || !selectedMatch || !selectedPlayer) {
       setError(true);
       setIsLoading(false);
       return;
@@ -172,7 +173,7 @@ export const ReportScore = () => {
         />
 
         <Button
-          disabled={!!!score}
+          disabled={!hasScore}
           isFullWidth={true}
           isLoading={isLoading}
           colorTheme="overlay"
