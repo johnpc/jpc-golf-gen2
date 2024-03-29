@@ -25,7 +25,14 @@ export class CacheSingleton {
     return [...this.players, ...this.matches, ...this.scores].length > 0;
   };
 
+  clear = () => {
+    this.matches = [];
+    this.scores = [];
+    this.matches = [];
+  };
+
   initialize = async () => {
+    this.clear();
     const matchResponse = await client.models.Match.list({
       selectionSet: ["id", "date", "players.*", "scores.*"],
       limit: 10000,

@@ -46,7 +46,7 @@ export const ReportScore = () => {
 
   useEffect(() => {
     setup();
-  });
+  }, []);
 
   const onChangeScore = async (event: ChangeEvent<HTMLInputElement>) => {
     const score = parseInt(event.target.value);
@@ -134,15 +134,15 @@ export const ReportScore = () => {
               match.players.find((player) => selectedPlayer?.id === player.id),
             )
 
-            // .filter((match) => {
-            //   // Only display last week's and next week's match
-            //   return (
-            //     // if the date is more than a week ago
-            //     // Date.parse(match.date) > Date.now() - MS_PER_WEEK &&
-            //     // or if the date is less than a week from now
-            //     match.date.getTime() < Date.now() + MS_PER_WEEK
-            //   );
-            // })
+            .filter((match) => {
+              // Only display last week's and next week's match
+              return (
+                // if the date is more than a week ago
+                // Date.parse(match.date) > Date.now() - MS_PER_WEEK &&
+                // or if the date is less than a week from now
+                match.date.getTime() < Date.now() + MS_PER_WEEK
+              );
+            })
             .filter((match) => {
               // Hide dates where the score was already reported
               const matchScore = scores.find(
@@ -151,6 +151,9 @@ export const ReportScore = () => {
                   score.player.id === selectedPlayer?.id,
               );
               return !matchScore;
+            })
+            .sort((match1, match2) => {
+              return match1.date.getTime() - match2.date.getTime();
             })
             .map((match) => (
               <option key={match.id} value={match.id}>
@@ -163,7 +166,7 @@ export const ReportScore = () => {
           onChange={onChangeScore}
           disabled={!!!selectedMatch}
           size="large"
-          placeholder="Score"
+          placeholder="Score over/under par"
           marginBottom={tokens.space.medium}
           id="score"
         />

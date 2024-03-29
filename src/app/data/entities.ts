@@ -3,6 +3,8 @@ import { generateClient } from "aws-amplify/data";
 import { Schema } from "../../../amplify/data/resource";
 import config from "../../../amplifyconfiguration.json";
 import { CacheSingleton } from "./cache-singleton";
+import { Subscription } from "rxjs";
+import { sleep } from "../helpers/sleep";
 Amplify.configure(config);
 const client = generateClient<Schema>({
   authMode: "iam",
@@ -69,6 +71,24 @@ export const listScores = async () => {
   return cacheInstance.listScores();
 };
 
+export const scoreListener = (fn: () => void) => {
+  const listener = client.models.Score.onCreate().subscribe({
+    next: async () => {
+      const cacheInstance = await CacheSingleton.getInstance();
+      await cacheInstance.initialize();
+      fn();
+    },
+    error: (error) => {
+      console.error("Subscription error", error);
+    },
+  });
+  return listener;
+};
+
+export const unsubscribeListener = (subscription: Subscription) => {
+  return subscription.unsubscribe();
+};
+
 export const createPlayer = async (playerProps: {
   name: string;
   email: string;
@@ -89,7 +109,5 @@ export const createScore = async (
     playerScoresId: player.id,
     matchScoresId: match.id,
   });
-  const cacheInstance = await CacheSingleton.getInstance();
-  await cacheInstance.initialize();
   return await hydrateScore(createdScore.data.id);
 };

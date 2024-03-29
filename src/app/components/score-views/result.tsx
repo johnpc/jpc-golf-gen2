@@ -4,8 +4,12 @@ import { MatchEntity, PlayerStub, hydrateScore } from "../../data/entities";
 import getHandicap from "../../helpers/getHandicap";
 
 export const Result = (props: { player: PlayerStub; match: MatchEntity }) => {
-  const [playerAdjustedScore, setPlayerAdjustedScore] = useState<number>();
-  const [opponentAdjustedScore, setOpponentAdjustedScore] = useState<number>();
+  const [playerAdjustedScore, setPlayerAdjustedScore] = useState<
+    number | string
+  >();
+  const [opponentAdjustedScore, setOpponentAdjustedScore] = useState<
+    number | string
+  >();
   useEffect(() => {
     const setup = async () => {
       const scoreEntityPromises = props.match.scores.map((score) =>
@@ -15,8 +19,15 @@ export const Result = (props: { player: PlayerStub; match: MatchEntity }) => {
       const playerScore = scoreEntities.find(
         (score) => score.player.id === props.player.id,
       );
-      const playerHandicap = await getHandicap(props.player, props.match.date);
-      setPlayerAdjustedScore(playerScore!.score - playerHandicap);
+      if (!playerScore) {
+        setPlayerAdjustedScore("-");
+      } else {
+        const playerHandicap = await getHandicap(
+          props.player,
+          props.match.date,
+        );
+        setPlayerAdjustedScore(playerScore!.score - playerHandicap);
+      }
 
       const opponentPlayer = props.match.players.find(
         (player) => player.id !== props.player.id,
@@ -24,14 +35,18 @@ export const Result = (props: { player: PlayerStub; match: MatchEntity }) => {
       const opponentScore = scoreEntities.find(
         (score) => score.player.id !== props.player.id,
       );
-      const opponentHandicap = await getHandicap(
-        opponentPlayer,
-        props.match.date,
-      );
-      setOpponentAdjustedScore(opponentScore!.score - opponentHandicap);
+      if (!opponentScore) {
+        setOpponentAdjustedScore("-");
+      } else {
+        const opponentHandicap = await getHandicap(
+          opponentPlayer,
+          props.match.date,
+        );
+        setOpponentAdjustedScore(opponentScore!.score - opponentHandicap);
+      }
     };
     setup();
-  }, []);
+  }, [props.match.scores]);
 
   if (
     playerAdjustedScore === undefined ||
@@ -40,11 +55,16 @@ export const Result = (props: { player: PlayerStub; match: MatchEntity }) => {
     return <Loader />;
   }
 
+  const playerAdjustedScoreNumber =
+    playerAdjustedScore === "-" ? 1000000 : playerAdjustedScore;
+  const opponentAdjustedScoreNumber =
+    opponentAdjustedScore === "-" ? 1000000 : opponentAdjustedScore;
+
   return (
     <>
-      {playerAdjustedScore < opponentAdjustedScore
+      {playerAdjustedScoreNumber < opponentAdjustedScoreNumber
         ? "⭐"
-        : playerAdjustedScore == opponentAdjustedScore
+        : playerAdjustedScoreNumber == opponentAdjustedScoreNumber
           ? "👔"
           : "💩"}
     </>

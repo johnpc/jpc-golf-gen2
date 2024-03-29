@@ -8,7 +8,12 @@ import {
   TableBody,
 } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
-import { MatchEntity, listMatches } from "../data/entities";
+import {
+  MatchEntity,
+  listMatches,
+  scoreListener,
+  unsubscribeListener,
+} from "../data/entities";
 import { tableTheme } from "../theme/tableTheme";
 import { getDateColor } from "../helpers/getDateColor";
 
@@ -20,6 +25,10 @@ export const Matches = () => {
       setMatches(fetchedMatches);
     };
     setup();
+    const listener = scoreListener(setup);
+    return () => {
+      unsubscribeListener(listener);
+    };
   }, []);
   if (matches.length === 0) {
     return <Loader />;

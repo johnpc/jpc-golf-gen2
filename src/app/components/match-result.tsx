@@ -14,10 +14,11 @@ import { tableTheme } from "../theme/tableTheme";
 import { RawScore } from "./score-views/raw-score";
 import { AdjustedScore } from "./score-views/adjusted-score";
 import { Result } from "./score-views/result";
+import { getDateColor } from "../helpers/getDateColor";
 
 export const MatchResult = (props: { match: MatchEntity }) => {
   return (
-    <Card>
+    <Card style={{ paddingTop: 0, paddingLeft: 0 }}>
       <ThemeProvider theme={tableTheme} colorMode="light">
         {props.match.scores.length ? (
           <>
@@ -27,7 +28,7 @@ export const MatchResult = (props: { match: MatchEntity }) => {
               caption={`Match on ${props.match.date.toLocaleDateString()}`}
             >
               <TableHead>
-                <TableRow>
+                <TableRow backgroundColor={getDateColor(props.match.date)}>
                   <TableCell as="th" />
                   <TableCell as="th">{props.match.players[0].name}</TableCell>
                   <TableCell as="th">{props.match.players[1].name}</TableCell>

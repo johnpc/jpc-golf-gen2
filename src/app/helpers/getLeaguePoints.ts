@@ -43,7 +43,7 @@ const getLeaguePoints = async (player: PlayerEntity): Promise<number> => {
       const otherPlayerEffectiveScore =
         otherPlayerScore.score - otherPlayerHandicap;
 
-      return playerEffectiveScore > otherPlayerEffectiveScore;
+      return playerEffectiveScore < otherPlayerEffectiveScore;
     },
   );
 

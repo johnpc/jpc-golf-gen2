@@ -1,6 +1,12 @@
 import { Loader } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
-import { PlayerEntity, PlayerStub, hydratePlayer } from "../../data/entities";
+import {
+  PlayerEntity,
+  PlayerStub,
+  hydratePlayer,
+  scoreListener,
+  unsubscribeListener,
+} from "../../data/entities";
 import getHandicap from "../../helpers/getHandicap";
 
 export const Handicap = (props: {
@@ -17,6 +23,10 @@ export const Handicap = (props: {
       setHandicap(h);
     };
     setup();
+    const listener = scoreListener(setup);
+    return () => {
+      unsubscribeListener(listener);
+    };
   }, []);
 
   if (handicap === undefined) {

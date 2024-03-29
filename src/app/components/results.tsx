@@ -1,6 +1,11 @@
 import { Loader } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
-import { MatchEntity, listMatches } from "../data/entities";
+import {
+  MatchEntity,
+  listMatches,
+  scoreListener,
+  unsubscribeListener,
+} from "../data/entities";
 import { MatchResult } from "./match-result";
 
 export const Results = () => {
@@ -11,6 +16,10 @@ export const Results = () => {
       setMatches(fetchedMatches);
     };
     setup();
+    const listener = scoreListener(setup);
+    return () => {
+      unsubscribeListener(listener);
+    };
   }, []);
   if (matches.length === 0) {
     return <Loader />;

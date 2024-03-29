@@ -16,7 +16,7 @@ export const tableTheme: Theme = {
         },
 
         header: {
-          color: { value: "{colors.blue.80}" },
+          color: { value: "var(--amplify-components-tabs-item-active-color)" },
           fontSize: { value: "{fontSizes.xl}" },
         },
 

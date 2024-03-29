@@ -8,10 +8,16 @@ import {
   ThemeProvider,
 } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
-import { PlayerEntity, listPlayers } from "../data/entities";
+import {
+  PlayerEntity,
+  listPlayers,
+  scoreListener,
+  unsubscribeListener,
+} from "../data/entities";
 import { Handicap } from "./score-views/handicap";
 import { tableTheme } from "../theme/tableTheme";
 import getLeaguePoints from "../helpers/getLeaguePoints";
+import { sleep } from "../helpers/sleep";
 
 type PlayerWithPoints = PlayerEntity & {
   leaguePoints: number;
@@ -32,6 +38,13 @@ export const Leaderboard = () => {
           playerTwo.leaguePoints - playerOne.leaguePoints,
       );
       setPlayers(playersWithPoints);
+      const listener = scoreListener(async () => {
+        await sleep(500);
+        await setup();
+      });
+      return () => {
+        unsubscribeListener(listener);
+      };
     };
     setup();
   }, []);
