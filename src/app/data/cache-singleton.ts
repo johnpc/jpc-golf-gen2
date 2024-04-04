@@ -9,12 +9,13 @@ import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { Schema } from "../../../amplify/data/resource";
 import config from "../../../amplifyconfiguration.json";
+import { sleep } from "../helpers/sleep";
 Amplify.configure(config);
-const client = generateClient<Schema>({
-  authMode: "iam",
-});
 export class CacheSingleton {
   static instance: CacheSingleton | undefined;
+  private client = generateClient<Schema>({
+    authMode: "iam",
+  });
   private players: PlayerEntity[] = [];
   private matches: MatchEntity[] = [];
   private scores: ScoreEntity[] = [];
@@ -35,16 +36,9 @@ export class CacheSingleton {
     );
   };
 
-  clear = () => {
-    this.matches = [];
-    this.scores = [];
-    this.matches = [];
-    this.leagues = [];
-  };
-
-  initialize = async () => {
+  private _initialize = async () => {
     this.clear();
-    const leagueResponse = await client.models.League.list({
+    const leagueResponse = await this.client.models.League.list({
       selectionSet: [
         "id",
         "name",
@@ -61,7 +55,7 @@ export class CacheSingleton {
         createdAt: new Date(leagueResponse.createdAt),
       })) ?? [];
 
-    const matchResponse = await client.models.Match.list({
+    const matchResponse = await this.client.models.Match.list({
       selectionSet: ["id", "date", "players.*", "scores.*", "league.*"],
       limit: 10000,
     });
@@ -71,7 +65,7 @@ export class CacheSingleton {
         ...matchResponse,
         date: new Date(matchResponse.date),
       })) ?? [];
-    const playerResponse = await client.models.Player.list({
+    const playerResponse = await this.client.models.Player.list({
       selectionSet: [
         "id",
         "name",
@@ -103,7 +97,7 @@ export class CacheSingleton {
       )!,
     }));
 
-    const scoreResponse = await client.models.Score.list({
+    const scoreResponse = await this.client.models.Score.list({
       selectionSet: ["id", "score", "match.*", "player.*", "league.*"],
       limit: 10000,
     });
@@ -143,6 +137,24 @@ export class CacheSingleton {
     this.scores = scoreEntities;
     this.matches = matchEntities;
     this.leagues = leagueEntities;
+  };
+
+  clear = () => {
+    this.matches = [];
+    this.scores = [];
+    this.matches = [];
+    this.leagues = [];
+  };
+
+  initialize = async (client?: any) => {
+    if (client) this.client = client;
+    try {
+      await this._initialize();
+    } catch (error) {
+      console.error("Failed to setup cache", error);
+      await sleep(1000);
+      await this._initialize();
+    }
   };
 
   hydrateLeague = async (id: string): Promise<LeagueEntity> => {

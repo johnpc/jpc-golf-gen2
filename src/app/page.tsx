@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { Loader, SelectField } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
 import { listLeagues, LeagueEntity } from "./data/entities";
@@ -7,6 +8,7 @@ import League from "./components/league";
 export default function Home() {
   const [leagues, setLeagues] = useState<LeagueEntity[]>([]);
   const [league, setLeague] = useState<LeagueEntity>();
+  const router = useRouter();
 
   useEffect(() => {
     const setup = async () => {
@@ -22,7 +24,7 @@ export default function Home() {
 
   const onLeagueSelect = (leagueId: string) => {
     if (leagueId === "create") {
-      alert("League creation is not supported yet.");
+      router.push("/create-league", { scroll: false });
       return;
     }
     const selectedLeague = leagues.find((league) => league.id === leagueId);

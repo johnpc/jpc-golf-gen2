@@ -22,7 +22,10 @@ const schema = a.schema({
       league: a.belongsTo("League"),
     })
     .secondaryIndexes((index) => [index("email")])
-    .authorization([a.allow.custom(), a.allow.public("iam").to(["read"])]),
+    .authorization([
+      a.allow.custom(),
+      a.allow.public("iam").to(["read", "create"]),
+    ]),
   Score: a
     .model({
       match: a.belongsTo("Match"),
@@ -41,7 +44,10 @@ const schema = a.schema({
       scores: a.hasMany("Score"),
       league: a.belongsTo("League"),
     })
-    .authorization([a.allow.custom(), a.allow.public("iam").to(["read"])]),
+    .authorization([
+      a.allow.custom(),
+      a.allow.public("iam").to(["read", "create"]),
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

@@ -130,7 +130,7 @@ export const ReportScore = (props: { league: LeagueEntity }) => {
           labelHidden={true}
           disabled={!!!selectedPlayer}
         >
-          <option value="apple">Select Match</option>
+          <option value="title">Select Match</option>
           {matches
             .filter((match) =>
               match.players.find((player) => selectedPlayer?.id === player.id),

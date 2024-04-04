@@ -116,17 +116,50 @@ export const unsubscribeListener = (subscription: Subscription) => {
   return subscription.unsubscribe();
 };
 
-export const createPlayer = async (playerProps: {
-  league: LeagueEntity;
-  name: string;
-  email: string;
-}) => {
-  const createdPlayer = await client.models.Player.create({
-    ...playerProps,
-    league: undefined,
-    leaguePlayersId: playerProps.league.id,
+export const createLeague = async (name: string) => {
+  const createdLeague = await client.models.League.create({
+    name,
   });
+  const cacheInstance = await CacheSingleton.getInstance();
+  await cacheInstance.initialize();
+  return await hydrateLeague(createdLeague.data.id);
+};
+
+export const createPlayer = async (
+  league: LeagueEntity,
+  name: string,
+  email: string,
+) => {
+  const createdPlayer = await client.models.Player.create({
+    name,
+    email,
+    leaguePlayersId: league.id,
+  });
+  const cacheInstance = await CacheSingleton.getInstance();
+  await cacheInstance.initialize();
   return await hydratePlayer(createdPlayer.data.id);
+};
+
+export const createMatch = async (
+  league: LeagueEntity,
+  players: PlayerEntity[],
+  date: Date,
+) => {
+  const createdMatch = await client.models.Match.create({
+    date: date.toISOString(),
+    leagueMatchesId: league.id,
+  });
+  const playerMatch1 = await client.models.PlayerMatch.create({
+    matchId: createdMatch.data.id,
+    playerId: players[0].id,
+  });
+  const playerMatch2 = await client.models.PlayerMatch.create({
+    matchId: createdMatch.data.id,
+    playerId: players[1].id,
+  });
+  console.log({ e1: playerMatch1.errors, e2: playerMatch2.errors });
+  const cacheInstance = await CacheSingleton.getInstance();
+  await cacheInstance.initialize();
 };
 
 export const createScore = async (
