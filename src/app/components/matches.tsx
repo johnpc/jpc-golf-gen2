@@ -22,17 +22,15 @@ export const Matches = (props: { league: LeagueEntity }) => {
   const [matches, setMatches] = useState<MatchEntity[]>([]);
   useEffect(() => {
     const setup = async () => {
-      const fetchedMatches = await listMatches();
-      setMatches(
-        fetchedMatches.filter((match) => match.league.id === props.league.id),
-      );
+      const fetchedMatches = await listMatches(props.league);
+      setMatches(fetchedMatches);
     };
     setup();
     const listener = scoreListener(setup);
     return () => {
       unsubscribeListener(listener);
     };
-  }, []);
+  }, [props.league]);
   if (matches.length === 0) {
     return <Loader />;
   }

@@ -25,8 +25,8 @@ const seedPlayers = async (league: Schema["League"]) => {
     "Kody", // Xyllor
     "Nobody", // Free Win
 
-    "Alex", // He's a No :(
-    "Eric", //
+    // "Alex", // He's a No :(
+    // "Eric", //
   ];
 
   const playerModels = await Promise.all(
@@ -143,8 +143,16 @@ const cleanUp = async () => {
 
 const main = async () => {
   await cleanUp();
-  const league = await client.models.League.create({ name: "Test League" });
-  const playerEntities = await seedPlayers(league.data);
-  await setupMatches(league.data, playerEntities, 4, new Date());
+  const numLeaguesToCreate = 2;
+  const promises = Array.from(Array(numLeaguesToCreate)).map(
+    async (_, leagueNumber) => {
+      const league = await client.models.League.create({
+        name: `Test League ${leagueNumber}`,
+      });
+      const playerEntities = await seedPlayers(league.data);
+      await setupMatches(league.data, playerEntities, 4, new Date());
+    },
+  );
+  await Promise.all(promises);
 };
 main();

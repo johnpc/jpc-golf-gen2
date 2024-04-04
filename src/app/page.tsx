@@ -1,15 +1,12 @@
 "use client";
-import { Loader, Tabs } from "@aws-amplify/ui-react";
-import { Leaderboard } from "./components/leaderboard";
-import { Results } from "./components/results";
-import { Matches } from "./components/matches";
-import { ReportScore } from "./components/report-score";
+import { Loader, SelectField } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
-import { listPlayers, listLeagues, LeagueEntity } from "./data/entities";
+import { listLeagues, LeagueEntity } from "./data/entities";
+import League from "./components/league";
 
 export default function Home() {
+  const [leagues, setLeagues] = useState<LeagueEntity[]>([]);
   const [league, setLeague] = useState<LeagueEntity>();
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const setup = async () => {
@@ -18,37 +15,39 @@ export default function Home() {
         (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
       );
       setLeague(sortedLeagues[0]);
-      await listPlayers();
-      setLoading(false);
+      setLeagues(sortedLeagues);
     };
     setup();
-  });
-  if (!league || loading) return <Loader />;
+  }, []);
+
+  const onLeagueSelect = (leagueId: string) => {
+    if (leagueId === "create") {
+      alert("League creation is not supported yet.");
+      return;
+    }
+    const selectedLeague = leagues.find((league) => league.id === leagueId);
+    console.log({ selectedLeague });
+
+    setLeague(selectedLeague);
+  };
+
+  if (!leagues.length || !league) return <Loader />;
 
   return (
     <>
-      <ReportScore league={league} />
-      <Tabs
-        justifyContent="center"
-        defaultValue="leaderboard"
-        items={[
-          {
-            label: "Leaderboard",
-            value: "leaderboard",
-            content: <Leaderboard league={league} />,
-          },
-          {
-            label: "Matches",
-            value: "matches",
-            content: <Matches league={league} />,
-          },
-          {
-            label: "Results",
-            value: "results",
-            content: <Results league={league} />,
-          },
-        ]}
-      />
+      <SelectField
+        label="Past league"
+        descriptiveText="Review league history?"
+        onChange={(e) => onLeagueSelect(e.target.value)}
+      >
+        {leagues.map((league) => (
+          <option key={league.id} value={league.id}>
+            {league.name}
+          </option>
+        ))}
+        <option value={"create"}>Create a league</option>
+      </SelectField>
+      <League league={league} />
     </>
   );
 }

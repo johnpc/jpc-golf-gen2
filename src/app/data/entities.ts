@@ -80,19 +80,22 @@ export const listLeagues = async () => {
   return cacheInstance.listLeagues();
 };
 
-export const listPlayers = async () => {
+export const listPlayers = async (league: LeagueEntity) => {
   const cacheInstance = await CacheSingleton.getInstance();
-  return cacheInstance.listPlayers();
+  const fetchedPlayers = await cacheInstance.listPlayers();
+  return fetchedPlayers.filter((player) => player.league.id === league.id);
 };
 
-export const listMatches = async () => {
+export const listMatches = async (league: LeagueEntity) => {
   const cacheInstance = await CacheSingleton.getInstance();
-  return cacheInstance.listMatches();
+  const fetchedMatches = await cacheInstance.listMatches();
+  return fetchedMatches.filter((match) => match.league.id === league.id);
 };
 
-export const listScores = async () => {
+export const listScores = async (league: LeagueEntity) => {
   const cacheInstance = await CacheSingleton.getInstance();
-  return cacheInstance.listScores();
+  const fetchedScores = await cacheInstance.listScores();
+  return fetchedScores.filter((score) => score.league.id === league.id);
 };
 
 export const scoreListener = (fn: () => void) => {

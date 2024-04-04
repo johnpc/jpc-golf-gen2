@@ -38,17 +38,17 @@ export const ReportScore = (props: { league: LeagueEntity }) => {
   const hasScore = !!score || score === 0;
 
   const setup = async () => {
-    const p = await listPlayers();
+    const p = await listPlayers(props.league);
     setPlayers(p);
-    const m = await listMatches();
+    const m = await listMatches(props.league);
     setMatches(m);
-    const s = await listScores();
+    const s = await listScores(props.league);
     setScores(s);
   };
 
   useEffect(() => {
     setup();
-  }, []);
+  }, [props.league]);
 
   const onChangeScore = async (event: ChangeEvent<HTMLInputElement>) => {
     const score = parseInt(event.target.value);

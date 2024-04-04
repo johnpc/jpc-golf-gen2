@@ -27,13 +27,11 @@ export const Leaderboard = (props: { league: LeagueEntity }) => {
   const [players, setPlayers] = useState<PlayerWithPoints[]>([]);
   useEffect(() => {
     const setup = async () => {
-      const fetchedPlayers = await listPlayers();
-      const playerWithPointsPromises = fetchedPlayers
-        .filter((player) => player.league.id === props.league.id)
-        .map(async (player) => ({
-          ...player,
-          leaguePoints: await getLeaguePoints(player),
-        }));
+      const fetchedPlayers = await listPlayers(props.league);
+      const playerWithPointsPromises = fetchedPlayers.map(async (player) => ({
+        ...player,
+        leaguePoints: await getLeaguePoints(player),
+      }));
       const playersWithPoints = await Promise.all(playerWithPointsPromises);
       playersWithPoints.sort(
         (playerOne, playerTwo) =>
@@ -48,7 +46,7 @@ export const Leaderboard = (props: { league: LeagueEntity }) => {
       };
     };
     setup();
-  }, []);
+  }, [props.league]);
   if (players.length === 0) {
     return <Loader />;
   }
