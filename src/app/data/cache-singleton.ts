@@ -1,4 +1,10 @@
-import { MatchEntity, PlayerEntity, ScoreEntity, ScoreStub } from "./entities";
+import {
+  LeagueEntity,
+  MatchEntity,
+  PlayerEntity,
+  ScoreEntity,
+  ScoreStub,
+} from "./entities";
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { Schema } from "../../../amplify/data/resource";
@@ -12,6 +18,7 @@ export class CacheSingleton {
   private players: PlayerEntity[] = [];
   private matches: MatchEntity[] = [];
   private scores: ScoreEntity[] = [];
+  private leagues: LeagueEntity[] = [];
 
   static async getInstance(): Promise<CacheSingleton> {
     if (!CacheSingleton.instance) {
@@ -22,19 +29,40 @@ export class CacheSingleton {
   }
 
   private isInitialized = () => {
-    return [...this.players, ...this.matches, ...this.scores].length > 0;
+    return (
+      [...this.players, ...this.matches, ...this.scores, ...this.leagues]
+        .length > 0
+    );
   };
 
   clear = () => {
     this.matches = [];
     this.scores = [];
     this.matches = [];
+    this.leagues = [];
   };
 
   initialize = async () => {
     this.clear();
+    const leagueResponse = await client.models.League.list({
+      selectionSet: [
+        "id",
+        "name",
+        "players.*",
+        "scores.*",
+        "matches.*",
+        "createdAt",
+      ],
+      limit: 10000,
+    });
+    const leagueStubs =
+      leagueResponse.data?.map((leagueResponse) => ({
+        ...leagueResponse,
+        createdAt: new Date(leagueResponse.createdAt),
+      })) ?? [];
+
     const matchResponse = await client.models.Match.list({
-      selectionSet: ["id", "date", "players.*", "scores.*"],
+      selectionSet: ["id", "date", "players.*", "scores.*", "league.*"],
       limit: 10000,
     });
 
@@ -44,7 +72,14 @@ export class CacheSingleton {
         date: new Date(matchResponse.date),
       })) ?? [];
     const playerResponse = await client.models.Player.list({
-      selectionSet: ["id", "name", "email", "matches.*", "scores.*"],
+      selectionSet: [
+        "id",
+        "name",
+        "email",
+        "matches.*",
+        "scores.*",
+        "league.*",
+      ],
       limit: 10000,
     });
     const playerEntities = playerResponse.data.map((playerResponse) => ({
@@ -63,10 +98,13 @@ export class CacheSingleton {
             date: new Date(match.date),
           })) ?? [],
       scores: playerResponse.scores ?? ([] as ScoreStub[]),
+      league: leagueStubs.find(
+        (leagueStub) => leagueStub.id === playerResponse.league.id,
+      )!,
     }));
 
     const scoreResponse = await client.models.Score.list({
-      selectionSet: ["id", "score", "match.*", "player.*"],
+      selectionSet: ["id", "score", "match.*", "player.*", "league.*"],
       limit: 10000,
     });
     const scoreEntities = scoreResponse.data.map((scoreResponse) => ({
@@ -76,6 +114,9 @@ export class CacheSingleton {
         ...scoreResponse.match,
         date: new Date(scoreResponse.match.date),
       },
+      league: leagueStubs.find(
+        (leagueStub) => leagueStub.id === scoreResponse.league.id,
+      )!,
     }));
 
     const matchEntities = matchResponse.data.map((matchResponse) => ({
@@ -86,11 +127,29 @@ export class CacheSingleton {
           (playerInfo) =>
             playerEntities.find((player) => player.id === playerInfo.playerId)!,
         ) ?? [],
+      league: leagueStubs.find(
+        (leagueStub) => leagueStub.id === matchResponse.league.id,
+      )!,
+    }));
+
+    const leagueEntities = leagueStubs.map((leagueStub) => ({
+      ...leagueStub,
+      matches: matchStubs.filter(
+        (matchStub) => matchStub.league.id === leagueStub.id,
+      ),
     }));
 
     this.players = playerEntities;
     this.scores = scoreEntities;
     this.matches = matchEntities;
+    this.leagues = leagueEntities;
+  };
+
+  hydrateLeague = async (id: string): Promise<LeagueEntity> => {
+    if (!this.isInitialized()) {
+      await this.initialize();
+    }
+    return this.leagues.find((league) => league.id === id)!;
   };
 
   hydratePlayer = async (id: string): Promise<PlayerEntity> => {
@@ -110,6 +169,13 @@ export class CacheSingleton {
       await this.initialize();
     }
     return this.matches.find((match) => match.id === id)!;
+  };
+
+  listLeagues = async (): Promise<LeagueEntity[]> => {
+    if (!this.isInitialized()) {
+      await this.initialize();
+    }
+    return this.leagues;
   };
 
   listPlayers = async (): Promise<PlayerEntity[]> => {

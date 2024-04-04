@@ -9,6 +9,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
 import {
+  LeagueEntity,
   MatchEntity,
   listMatches,
   scoreListener,
@@ -17,12 +18,14 @@ import {
 import { tableTheme } from "../theme/tableTheme";
 import { getDateColor } from "../helpers/getDateColor";
 
-export const Matches = () => {
+export const Matches = (props: { league: LeagueEntity }) => {
   const [matches, setMatches] = useState<MatchEntity[]>([]);
   useEffect(() => {
     const setup = async () => {
       const fetchedMatches = await listMatches();
-      setMatches(fetchedMatches);
+      setMatches(
+        fetchedMatches.filter((match) => match.league.id === props.league.id),
+      );
     };
     setup();
     const listener = scoreListener(setup);

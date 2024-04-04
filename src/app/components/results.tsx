@@ -1,6 +1,7 @@
 import { Loader } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
 import {
+  LeagueEntity,
   MatchEntity,
   listMatches,
   scoreListener,
@@ -8,12 +9,14 @@ import {
 } from "../data/entities";
 import { MatchResult } from "./match-result";
 
-export const Results = () => {
+export const Results = (props: { league: LeagueEntity }) => {
   const [matches, setMatches] = useState<MatchEntity[]>([]);
   useEffect(() => {
     const setup = async () => {
       const fetchedMatches = await listMatches();
-      setMatches(fetchedMatches);
+      setMatches(
+        fetchedMatches.filter((match) => match.league.id === props.league.id),
+      );
     };
     setup();
     const listener = scoreListener(setup);

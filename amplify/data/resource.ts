@@ -2,19 +2,33 @@ import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 import { AmplifyFunction, ConstructFactory } from "@aws-amplify/plugin-types";
 
 const schema = a.schema({
+  League: a
+    .model({
+      name: a.string().required(),
+      players: a.hasMany("Player"),
+      scores: a.hasMany("Score"),
+      matches: a.hasMany("Match"),
+    })
+    .authorization([
+      a.allow.custom(),
+      a.allow.public("iam").to(["read", "create"]),
+    ]),
   Player: a
     .model({
       name: a.string().required(),
       email: a.string().required(),
       scores: a.hasMany("Score"),
       matches: a.manyToMany("Match", { relationName: "PlayerMatch" }),
+      league: a.belongsTo("League"),
     })
+    .secondaryIndexes((index) => [index("email")])
     .authorization([a.allow.custom(), a.allow.public("iam").to(["read"])]),
   Score: a
     .model({
       match: a.belongsTo("Match"),
       player: a.belongsTo("Player"),
       score: a.integer().required(),
+      league: a.belongsTo("League"),
     })
     .authorization([
       a.allow.custom(),
@@ -25,6 +39,7 @@ const schema = a.schema({
       date: a.string().required(),
       players: a.manyToMany("Player", { relationName: "PlayerMatch" }),
       scores: a.hasMany("Score"),
+      league: a.belongsTo("League"),
     })
     .authorization([a.allow.custom(), a.allow.public("iam").to(["read"])]),
 });

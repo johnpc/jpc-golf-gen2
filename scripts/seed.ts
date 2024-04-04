@@ -14,16 +14,19 @@ const client = generateClient<Schema>({
   authToken: process.env.ADMIN_API_KEY!,
 });
 
-const seedPlayers = async () => {
+const seedPlayers = async (league: Schema["League"]) => {
   const playerNames = [
-    "Emily",
-    "Yeon",
-    "John",
-    "James",
-    "Alex",
-    "Josh",
-    "Eric",
-    "Kody",
+    "Emily", // The Purple Jacket
+    "Yeon", // Yoink
+    "John", // Chef boy-r-d
+    "James", // Cpt Insano
+    "Josh", // Sir Mix A Lot - Eight Iron
+    "Jamas", // Mas
+    "Kody", // Xyllor
+    "Nobody", // Free Win
+
+    "Alex", // He's a No :(
+    "Eric", //
   ];
 
   const playerModels = await Promise.all(
@@ -32,6 +35,7 @@ const seedPlayers = async () => {
         await client.models.Player.create({
           name: playerName,
           email: `${playerName}@gmail.com`,
+          leaguePlayersId: league.id,
         }),
     ),
   );
@@ -47,6 +51,7 @@ const getRandomPlayer = (players: PlayerEntity[]): PlayerEntity => {
 };
 
 const setupMatches = async (
+  league: Schema["League"],
   players: PlayerEntity[],
   numWeeks: number,
   firstMatchDate: Date,
@@ -74,15 +79,19 @@ const setupMatches = async (
       );
       const createdMatch = await client.models.Match.create({
         date: new Date(matchDate).toISOString(),
+        leagueMatchesId: league.id,
       });
-      await client.models.PlayerMatch.create({
+      console.log({ createdMatch });
+      const createdPlayerMatch1 = await client.models.PlayerMatch.create({
         matchId: createdMatch.data.id,
         playerId: matchUp[0].id,
       });
-      await client.models.PlayerMatch.create({
+      console.log({ createdPlayerMatch1 });
+      const createdPlayerMatch2 = await client.models.PlayerMatch.create({
         matchId: createdMatch.data.id,
         playerId: matchUp[1].id,
       });
+      console.log({ createdPlayerMatch2 });
     });
 
     await Promise.all(promises);
@@ -91,10 +100,18 @@ const setupMatches = async (
 };
 
 const cleanUp = async () => {
+  const leagues = await client.models.League.list({
+    limit: 10000,
+  });
+  const deleteLeaguePromises = leagues.data.map((league: Schema["League"]) =>
+    client.models.League.delete({ id: league.id }),
+  );
+  await Promise.all(deleteLeaguePromises);
+
   const matches = await client.models.Match.list({
     limit: 10000,
   });
-  const deleteMatchPromises = matches.data.map((match) =>
+  const deleteMatchPromises = matches.data.map((match: Schema["Match"]) =>
     client.models.Match.delete({ id: match.id }),
   );
   await Promise.all(deleteMatchPromises);
@@ -102,7 +119,7 @@ const cleanUp = async () => {
   const players = await client.models.Player.list({
     limit: 10000,
   });
-  const deletePlayerPromises = players.data.map((player) =>
+  const deletePlayerPromises = players.data.map((player: Schema["Player"]) =>
     client.models.Player.delete({ id: player.id }),
   );
   await Promise.all(deletePlayerPromises);
@@ -110,7 +127,7 @@ const cleanUp = async () => {
   const scores = await client.models.Score.list({
     limit: 10000,
   });
-  const deleteScorePromises = scores.data.map((score) =>
+  const deleteScorePromises = scores.data.map((score: Schema["Score"]) =>
     client.models.Score.delete({ id: score.id }),
   );
   await Promise.all(deleteScorePromises);
@@ -126,7 +143,8 @@ const cleanUp = async () => {
 
 const main = async () => {
   await cleanUp();
-  const playerEntities = await seedPlayers();
-  await setupMatches(playerEntities, 4, new Date());
+  const league = await client.models.League.create({ name: "Test League" });
+  const playerEntities = await seedPlayers(league.data);
+  await setupMatches(league.data, playerEntities, 4, new Date());
 };
 main();

@@ -10,6 +10,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import {
+  LeagueEntity,
   MatchEntity,
   PlayerEntity,
   ScoreEntity,
@@ -23,7 +24,7 @@ import {
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const MS_PER_WEEK = MS_PER_DAY * 7;
 
-export const ReportScore = () => {
+export const ReportScore = (props: { league: LeagueEntity }) => {
   const { tokens } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -77,7 +78,7 @@ export const ReportScore = () => {
       return;
     }
 
-    await createScore(selectedMatch, selectedPlayer, score);
+    await createScore(props.league, selectedMatch, selectedPlayer, score);
     setSelectedPlayer(undefined);
     setSelectedMatch(undefined);
     setScore(undefined);

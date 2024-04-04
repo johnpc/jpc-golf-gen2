@@ -4,11 +4,16 @@ import { Schema } from "../../../amplify/data/resource";
 import config from "../../../amplifyconfiguration.json";
 import { CacheSingleton } from "./cache-singleton";
 import { Subscription } from "rxjs";
-import { sleep } from "../helpers/sleep";
 Amplify.configure(config);
 const client = generateClient<Schema>({
   authMode: "iam",
 });
+
+export type LeagueStub = {
+  id: string;
+  name: string;
+  createdAt: Date;
+};
 
 export type PlayerStub = {
   id: string;
@@ -26,19 +31,33 @@ export type MatchStub = {
   date: Date;
 };
 
+export type LeagueEntity = LeagueStub & {
+  scores: ScoreStub[];
+  matches: MatchStub[];
+  players: PlayerStub[];
+};
+
 export type PlayerEntity = PlayerStub & {
   scores: ScoreStub[];
   matches: MatchStub[];
+  league: LeagueStub;
 };
 
 export type ScoreEntity = ScoreStub & {
   match: MatchStub;
   player: PlayerStub;
+  league: LeagueStub;
 };
 
 export type MatchEntity = MatchStub & {
   players: PlayerStub[];
   scores: ScoreStub[];
+  league: LeagueStub;
+};
+
+export const hydrateLeague = async (id: string): Promise<LeagueEntity> => {
+  const cacheInstance = await CacheSingleton.getInstance();
+  return cacheInstance.hydrateLeague(id);
 };
 
 export const hydratePlayer = async (id: string): Promise<PlayerEntity> => {
@@ -54,6 +73,11 @@ export const hydrateScore = async (id: string): Promise<ScoreEntity> => {
 export const hydrateMatch = async (id: string): Promise<MatchEntity> => {
   const cacheInstance = await CacheSingleton.getInstance();
   return cacheInstance.hydrateMatch(id);
+};
+
+export const listLeagues = async () => {
+  const cacheInstance = await CacheSingleton.getInstance();
+  return cacheInstance.listLeagues();
 };
 
 export const listPlayers = async () => {
@@ -90,14 +114,20 @@ export const unsubscribeListener = (subscription: Subscription) => {
 };
 
 export const createPlayer = async (playerProps: {
+  league: LeagueEntity;
   name: string;
   email: string;
 }) => {
-  const createdPlayer = await client.models.Player.create(playerProps);
+  const createdPlayer = await client.models.Player.create({
+    ...playerProps,
+    league: undefined,
+    leaguePlayersId: playerProps.league.id,
+  });
   return await hydratePlayer(createdPlayer.data.id);
 };
 
 export const createScore = async (
+  league: LeagueEntity,
   match: MatchEntity,
   player: PlayerEntity,
   score: number,
@@ -106,6 +136,7 @@ export const createScore = async (
     score,
     playerScoresId: player.id,
     matchScoresId: match.id,
+    leagueScoresId: league.id,
   });
   return await hydrateScore(createdScore.data.id);
 };

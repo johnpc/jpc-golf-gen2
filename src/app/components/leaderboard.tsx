@@ -9,6 +9,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { useEffect, useState } from "react";
 import {
+  LeagueEntity,
   PlayerEntity,
   listPlayers,
   scoreListener,
@@ -17,21 +18,22 @@ import {
 import { Handicap } from "./score-views/handicap";
 import { tableTheme } from "../theme/tableTheme";
 import getLeaguePoints from "../helpers/getLeaguePoints";
-import { sleep } from "../helpers/sleep";
 
 type PlayerWithPoints = PlayerEntity & {
   leaguePoints: number;
 };
 
-export const Leaderboard = () => {
+export const Leaderboard = (props: { league: LeagueEntity }) => {
   const [players, setPlayers] = useState<PlayerWithPoints[]>([]);
   useEffect(() => {
     const setup = async () => {
       const fetchedPlayers = await listPlayers();
-      const playerWithPointsPromises = fetchedPlayers.map(async (player) => ({
-        ...player,
-        leaguePoints: await getLeaguePoints(player),
-      }));
+      const playerWithPointsPromises = fetchedPlayers
+        .filter((player) => player.league.id === props.league.id)
+        .map(async (player) => ({
+          ...player,
+          leaguePoints: await getLeaguePoints(player),
+        }));
       const playersWithPoints = await Promise.all(playerWithPointsPromises);
       playersWithPoints.sort(
         (playerOne, playerTwo) =>
@@ -39,7 +41,6 @@ export const Leaderboard = () => {
       );
       setPlayers(playersWithPoints);
       const listener = scoreListener(async () => {
-        await sleep(500);
         await setup();
       });
       return () => {

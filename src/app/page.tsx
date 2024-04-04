@@ -5,23 +5,29 @@ import { Results } from "./components/results";
 import { Matches } from "./components/matches";
 import { ReportScore } from "./components/report-score";
 import { useEffect, useState } from "react";
-import { listPlayers } from "./data/entities";
+import { listPlayers, listLeagues, LeagueEntity } from "./data/entities";
 
 export default function Home() {
+  const [league, setLeague] = useState<LeagueEntity>();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const setup = async () => {
+      const leagues = await listLeagues();
+      const sortedLeagues = leagues.sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
+      setLeague(sortedLeagues[0]);
       await listPlayers();
       setLoading(false);
     };
     setup();
   });
-  if (loading) return <Loader />;
+  if (!league || loading) return <Loader />;
 
   return (
     <>
-      <ReportScore />
+      <ReportScore league={league} />
       <Tabs
         justifyContent="center"
         defaultValue="leaderboard"
@@ -29,14 +35,18 @@ export default function Home() {
           {
             label: "Leaderboard",
             value: "leaderboard",
-            content: <Leaderboard />,
+            content: <Leaderboard league={league} />,
           },
           {
             label: "Matches",
             value: "matches",
-            content: <Matches />,
+            content: <Matches league={league} />,
           },
-          { label: "Results", value: "results", content: <Results /> },
+          {
+            label: "Results",
+            value: "results",
+            content: <Results league={league} />,
+          },
         ]}
       />
     </>
