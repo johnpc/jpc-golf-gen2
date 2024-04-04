@@ -105,7 +105,7 @@ export const scoreListener = (fn: () => void) => {
       await cacheInstance.initialize();
       fn();
     },
-    error: (error) => {
+    error: (error: Error) => {
       console.error("Subscription error", error);
     },
   });
@@ -157,7 +157,6 @@ export const createMatch = async (
     matchId: createdMatch.data.id,
     playerId: players[1].id,
   });
-  console.log({ e1: playerMatch1.errors, e2: playerMatch2.errors });
   const cacheInstance = await CacheSingleton.getInstance();
   await cacheInstance.initialize();
 };
@@ -175,4 +174,20 @@ export const createScore = async (
     leagueScoresId: league.id,
   });
   return await hydrateScore(createdScore.data.id);
+};
+
+export const deleteLeague = async (league: LeagueEntity) => {
+  return await client.models.League.delete({ id: league.id });
+};
+
+export const deleteScore = async (score: ScoreEntity) => {
+  return await client.models.Score.delete({ id: score.id });
+};
+
+export const deleteMatch = async (match: MatchEntity) => {
+  return await client.models.Match.delete({ id: match.id });
+};
+
+export const deletePlayer = async (player: PlayerEntity) => {
+  return await client.models.Player.delete({ id: player.id });
 };

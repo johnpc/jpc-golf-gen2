@@ -49,22 +49,24 @@ export class CacheSingleton {
       ],
       limit: 10000,
     });
-    const leagueStubs =
-      leagueResponse.data?.map((leagueResponse) => ({
-        ...leagueResponse,
-        createdAt: new Date(leagueResponse.createdAt),
-      })) ?? [];
+    const leagueStubs = leagueResponse.data?.map
+      ? leagueResponse.data?.map((leagueResponse) => ({
+          ...leagueResponse,
+          createdAt: new Date(leagueResponse.createdAt),
+        }))
+      : [];
 
     const matchResponse = await this.client.models.Match.list({
       selectionSet: ["id", "date", "players.*", "scores.*", "league.*"],
       limit: 10000,
     });
 
-    const matchStubs =
-      matchResponse.data?.map((matchResponse) => ({
-        ...matchResponse,
-        date: new Date(matchResponse.date),
-      })) ?? [];
+    const matchStubs = matchResponse.data?.map
+      ? matchResponse.data?.map((matchResponse) => ({
+          ...matchResponse,
+          date: new Date(matchResponse.date),
+        }))
+      : [];
     const playerResponse = await this.client.models.Player.list({
       selectionSet: [
         "id",
@@ -76,26 +78,28 @@ export class CacheSingleton {
       ],
       limit: 10000,
     });
-    const playerEntities = playerResponse.data.map((playerResponse) => ({
-      id: playerResponse.id,
-      name: playerResponse.name,
-      email: playerResponse.email,
-      matches:
-        matchStubs
-          .filter((match) =>
-            (match.players as { playerId: string }[]).find(
-              (playerInfo) => playerInfo.playerId === playerResponse.id,
-            ),
-          )
-          .map((match) => ({
-            ...match,
-            date: new Date(match.date),
-          })) ?? [],
-      scores: playerResponse.scores ?? ([] as ScoreStub[]),
-      league: leagueStubs.find(
-        (leagueStub) => leagueStub.id === playerResponse.league.id,
-      )!,
-    }));
+    const playerEntities = playerResponse.data?.map
+      ? playerResponse.data.map((playerResponse) => ({
+          id: playerResponse.id,
+          name: playerResponse.name,
+          email: playerResponse.email,
+          matches:
+            matchStubs
+              .filter((match) =>
+                (match.players as { playerId: string }[]).find(
+                  (playerInfo) => playerInfo.playerId === playerResponse.id,
+                ),
+              )
+              .map((match) => ({
+                ...match,
+                date: new Date(match.date),
+              })) ?? [],
+          scores: playerResponse.scores ?? ([] as ScoreStub[]),
+          league: leagueStubs.find(
+            (leagueStub) => leagueStub.id === playerResponse.league.id,
+          )!,
+        }))
+      : [];
 
     const scoreResponse = await this.client.models.Score.list({
       selectionSet: ["id", "score", "match.*", "player.*", "league.*"],
