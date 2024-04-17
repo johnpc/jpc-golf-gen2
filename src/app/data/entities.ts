@@ -177,17 +177,41 @@ export const createScore = async (
 };
 
 export const deleteLeague = async (league: LeagueEntity) => {
-  return await client.models.League.delete({ id: league.id });
+  return await client.models.League.delete(
+    { id: league.id },
+    {
+      authMode: "lambda",
+      authToken: process.env.ADMIN_API_KEY,
+    },
+  );
 };
 
 export const deleteScore = async (score: ScoreEntity) => {
-  return await client.models.Score.delete({ id: score.id });
+  return await client.models.Score.delete(
+    { id: score.id },
+    {
+      authMode: "lambda",
+      authToken: process.env.ADMIN_API_KEY,
+    },
+  );
 };
 
 export const deleteMatch = async (match: MatchEntity) => {
-  return await client.models.Match.delete({ id: match.id });
+  return await client.models.Match.delete(
+    { id: match.id },
+    {
+      authMode: "lambda",
+      authToken: process.env.ADMIN_API_KEY,
+    },
+  );
 };
 
 export const deletePlayer = async (player: PlayerEntity) => {
-  return await client.models.Player.delete({ id: player.id });
+  return await client.models.Player.delete(
+    { id: player.id },
+    {
+      authMode: "lambda",
+      authToken: process.env.ADMIN_API_KEY,
+    },
+  );
 };

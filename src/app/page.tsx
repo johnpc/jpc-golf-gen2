@@ -33,13 +33,13 @@ export default function Home() {
     setLeague(selectedLeague);
   };
 
-  if (!leagues.length || !league) return <Loader />;
+  if (!leagues.length || !league) return <Loader variation="linear" />;
 
   return (
     <>
       <SelectField
-        label="Past league"
-        descriptiveText="Review league history?"
+        label="Other leagues"
+        descriptiveText="Create a new league or review other leagues"
         onChange={(e) => onLeagueSelect(e.target.value)}
       >
         {leagues.map((league) => (

@@ -17,15 +17,25 @@ export const cleanUpLeague = async (league: LeagueEntity): Promise<void> => {
   const deletePlayerPromises = playersToDelete.map((player) =>
     deletePlayer(player),
   );
-  await Promise.all(deletePlayerPromises);
+  const deletedPlayers = await Promise.all(deletePlayerPromises);
+  console.log({
+    deletedPlayers,
+    errors: deletedPlayers.find((m) => m)?.errors,
+  });
 
   const deleteScorePromises = scoresToDelete.map((score) => deleteScore(score));
-  await Promise.all(deleteScorePromises);
+  const deletedScores = await Promise.all(deleteScorePromises);
+  console.log({ deletedScores, errors: deletedScores.find((m) => m)?.errors });
 
   const deleteMatchPromises = matchesToDelete.map((match) =>
     deleteMatch(match),
   );
-  await Promise.all(deleteMatchPromises);
+  const deletedMatches = await Promise.all(deleteMatchPromises);
+  console.log({
+    deletedMatches,
+    errors: deletedMatches.find((m) => m)?.errors,
+  });
 
-  await deleteLeague(league);
+  const deletedLeague = await deleteLeague(league);
+  console.log({ deletedLeague, errors: deletedLeague.errors });
 };
