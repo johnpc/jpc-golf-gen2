@@ -6,8 +6,9 @@ import {
   Flex,
   Text,
   useTheme,
+  Link,
 } from "@aws-amplify/ui-react";
-
+import { Capacitor } from "@capacitor/core";
 export const Header = () => {
   const { tokens } = useTheme();
   return (
@@ -25,7 +26,14 @@ export const Header = () => {
             gap={tokens.space.xs}
           >
             <Heading level={1}>golf.jpc.io</Heading>
-            <Text as="span">Ann Arbor golf league</Text>
+            <Text as="span">
+              Ann Arbor golf league.{" "}
+              {Capacitor.getPlatform() === "web" ? (
+                <Link href="https://testflight.apple.com/join/v4zXk3Ww">
+                  Try the iOS app.
+                </Link>
+              ) : null}
+            </Text>
           </Flex>
         </Flex>
       </Card>
