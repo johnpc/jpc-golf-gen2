@@ -10,10 +10,13 @@
     "prepare": "husky install",
     "prod-config": "amplify generate config --app-id dxyy19e6virsh --branch main --profile personal",
     "ios": "npm run prod-config && npm run dev-ios",
-    "dev-ios": "npm run build && cap sync && cap copy ios && cap open ios && cap build ios"
+    "dev-ios": "npm run build && cap sync && cap copy ios && cap open ios && cap build ios",
+    "android": "npm run prod-config && npm run dev-android",
+    "dev-android": "npm run build && cap sync && cap copy android && cap build android && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.6",
+    "@capacitor/android": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/ios": "^6.0.0",
     "aws-amplify": "^6.0.23",

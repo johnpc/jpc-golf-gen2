@@ -1,0 +1,10 @@
+*.ico
+*.svg
+*.png
+*.webp
+ios/
+android
+.env*
+.gitignore
+.husky/
+.prettierignore
