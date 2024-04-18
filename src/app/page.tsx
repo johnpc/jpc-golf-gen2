@@ -38,7 +38,7 @@ export default function Home() {
   return (
     <>
       <SelectField
-        label="Other leagues"
+        label=""
         descriptiveText="Create a new league or review other leagues"
         onChange={(e) => onLeagueSelect(e.target.value)}
       >
