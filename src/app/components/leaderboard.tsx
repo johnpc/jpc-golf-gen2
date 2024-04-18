@@ -56,9 +56,9 @@ export const Leaderboard = (props: { league: LeagueEntity }) => {
       <Table highlightOnHover variation="striped">
         <TableHead>
           <TableRow>
-            <TableCell as="th">Player Name</TableCell>
+            <TableCell as="th">Name</TableCell>
             <TableCell as="th">Handicap</TableCell>
-            <TableCell as="th">League Points</TableCell>
+            <TableCell as="th">Points</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

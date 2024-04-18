@@ -8,10 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky install",
-    "prod-config": "amplify generate config --app-id dxyy19e6virsh --branch main --profile personal"
+    "prod-config": "amplify generate config --app-id dxyy19e6virsh --branch main --profile personal",
+    "ios": "npm run prod-config && npm run dev-ios",
+    "dev-ios": "npm run build && cap sync && cap copy ios && cap open ios && cap build ios"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.6",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
     "aws-amplify": "^6.0.23",
     "date-fns": "^3.6.0",
     "next": "14.1.4",
@@ -23,6 +27,8 @@
   "devDependencies": {
     "@aws-amplify/backend": "^0.13.0-beta.11",
     "@aws-amplify/backend-cli": "^0.12.0-beta.13",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

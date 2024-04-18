@@ -17,7 +17,7 @@ export const tableTheme: Theme = {
 
         header: {
           color: { value: "var(--amplify-components-tabs-item-active-color)" },
-          fontSize: { value: "{fontSizes.xl}" },
+          fontSize: { value: "{fontSizes.large}" },
         },
 
         data: {
