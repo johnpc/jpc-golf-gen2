@@ -27,10 +27,10 @@ const getHandicap = async (
     if (!thruDate) {
       return true;
     }
-    return score.match.date.getTime() <= thruDate.getTime();
+    return score.match.date.getTime() <= thruDate.getTime() - 100;
   });
 
-  if (scores.length < 2 || !scores) {
+  if (scores.length < 1 || !scores) {
     return 0;
   }
 
