@@ -1,0 +1,12 @@
+{
+	"appId": "com.johncorser.golf",
+	"appName": "jpc.golf",
+	"webDir": "out",
+	"bundledWebRuntime": false,
+	"ios": {
+		"contentInset": "always",
+		"backgroundColor": "#B0E0E6"
+	},
+	"android": {},
+	"packageClassList": []
+}

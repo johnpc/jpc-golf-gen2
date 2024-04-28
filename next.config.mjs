@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: "export", // Must not be set for web builds. Required for capacitor builds only.
+  output: "export", // Must not be set for web builds. Required for capacitor builds only.
   reactStrictMode: true,
   swcMinify: true,
   images: {
