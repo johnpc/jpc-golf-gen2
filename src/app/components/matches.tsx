@@ -17,6 +17,7 @@ import {
 } from "../data/entities";
 import { tableTheme } from "../theme/tableTheme";
 import { getDateColor } from "../helpers/getDateColor";
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export const Matches = (props: { league: LeagueEntity }) => {
   const [matches, setMatches] = useState<MatchEntity[]>([]);
@@ -49,6 +50,10 @@ export const Matches = (props: { league: LeagueEntity }) => {
           {matches
             .sort(
               (match1, match2) => match1.date.getTime() - match2.date.getTime(),
+            )
+            .filter(
+              (match: MatchEntity) =>
+                match.date.getTime() >= new Date().getTime() - MS_PER_DAY,
             )
             .map((match: MatchEntity) => (
               <TableRow key={match.id}>
