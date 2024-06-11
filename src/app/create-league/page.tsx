@@ -49,8 +49,8 @@ export default function Home() {
       <Divider style={{ margin: "15px" }} orientation="horizontal" />
 
       <TextField
-        descriptiveText="Comma separated list of player names"
-        placeholder="john,jacob,jingleheimer,schmidt"
+        descriptiveText="Comma separated list of player names. Provide initial handicap via -, or exclude to default to scratch."
+        placeholder="john-3,jacob,jingleheimer-9,schmidt"
         label="Player Names"
         onChange={onPlayerNamesChange}
       />

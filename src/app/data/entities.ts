@@ -19,6 +19,7 @@ export type PlayerStub = {
   id: string;
   name: string;
   email: string;
+  initialHandicap?: number | null | undefined;
 };
 
 export type ScoreStub = {
@@ -130,9 +131,11 @@ export const createPlayer = async (
   name: string,
   email: string,
 ) => {
+  const [playerName, initialHandicap] = name.split("-");
   const createdPlayer = await client.models.Player.create({
-    name,
+    name: playerName,
     email,
+    initialHandicap: parseInt(initialHandicap) ?? 0,
     leaguePlayersId: league.id,
   });
   const cacheInstance = await CacheSingleton.getInstance();

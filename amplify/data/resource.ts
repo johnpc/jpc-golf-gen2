@@ -18,6 +18,7 @@ const schema = a.schema({
       name: a.string().required(),
       email: a.string().required(),
       scores: a.hasMany("Score"),
+      initialHandicap: a.integer(),
       matches: a.manyToMany("Match", { relationName: "PlayerMatch" }),
       league: a.belongsTo("League"),
     })

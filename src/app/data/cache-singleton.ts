@@ -72,6 +72,7 @@ export class CacheSingleton {
         "id",
         "name",
         "email",
+        "initialHandicap",
         "matches.*",
         "scores.*",
         "league.*",
@@ -83,6 +84,7 @@ export class CacheSingleton {
           id: playerResponse.id,
           name: playerResponse.name,
           email: playerResponse.email,
+          initialHandicap: playerResponse.initialHandicap ?? 0,
           matches:
             matchStubs
               .filter((match) =>

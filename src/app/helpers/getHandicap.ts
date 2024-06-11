@@ -30,6 +30,13 @@ const getHandicap = async (
     return score.match.date.getTime() <= thruDate.getTime() - 100;
   });
 
+  if (playerEntity.initialHandicap) {
+    scores.push({
+      id: "initial",
+      score: playerEntity.initialHandicap,
+    } as unknown as ScoreEntity);
+  }
+
   if (scores.length < 1 || !scores) {
     return 0;
   }
@@ -39,6 +46,7 @@ const getHandicap = async (
       (total: number, score: ScoreEntity) => total + score.score,
       0,
     ) / scores.length;
+
   return parseFloat((handicap * HANDICAP_ADJUSTMENT_FACTOR).toFixed(2));
 };
 
